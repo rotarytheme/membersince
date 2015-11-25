@@ -12,14 +12,19 @@ register_activation_hook( __FILE__, 'rotary_update_member_since' );
 function rotary_update_member_since() {
     global $wpdb;
     
-	query = 'UPDATE ' . $wpdb->usermeta . 
-	         SET meta_value = case 
-	                            when  meta_key ="memberyesno" then 1 
-	                            when meta_key="membersince" then "20150101"
-	                            else meta_value 
-	                          end
-	         WHERE ' . $wpdb->usermeta . '.user_id <> 1';
-	//echo $query;
-	$wpdb->query($query);
+    $args = array(
+    		'exclude' => array( 1 )
+    );
+    
+    // The Query
+    $user_query = new WP_User_Query( $args );
+    
+    // User Loop
+    if ( ! empty( $user_query->results ) ) {
+    	foreach ( $user_query->results as $user ) {
+    		update_user_meta( $user->ID, 'memberyesno', 1 ); 
+    		update_user_meta( $user->ID, 'membersince', '01/01/2015', '' ); 
+    		update_user_meta( $user->ID, 'email', $user->user_email ); 
+    	}
+    }
 }
-	
